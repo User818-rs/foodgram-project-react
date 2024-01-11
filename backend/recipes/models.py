@@ -1,20 +1,20 @@
 from colorfield import fields
 from django.db import models
-from django.core.validators import MinValueValidator
 from django.db.models import UniqueConstraint
 from api.validators import not_null
 from users.models import CustomUser
 
 
 class Ingredient(models.Model):
-    """Модель ингредиентов и их количества"""
+    """
+    Модель ингредиентов и их количества
+    """
 
     name = models.CharField(
         verbose_name="Наименование",
         unique=True,
         max_length=200,
-        blank=False
-        )
+        blank=False)
     measurement_unit = models.CharField(
         verbose_name="Единица измерения",
         max_length=200,
@@ -27,8 +27,8 @@ class Ingredient(models.Model):
         ordering = ["id"]
         constraints = [
             UniqueConstraint(
-                fields=['name', 'measurement_unit'],
-                name='ingredient_name_measurement_unit'
+                fields=["name", "measurement_unit"],
+                name="ingredient_name_measurement_unit"
             )
         ]
 
@@ -37,23 +37,25 @@ class Ingredient(models.Model):
 
 
 class Tag(models.Model):
-    """Модель тегов"""
+    """
+    Модель тегов
+    """
 
     name = models.CharField(
         verbose_name="Наименование",
         unique=True,
         max_length=200,
-        )
+    )
     color = fields.ColorField(
-        verbose_name="Цвет в HEX'",
+        verbose_name="Цвет в HEX",
         max_length=7,
         unique=True,
-        )
+    )
     slug = models.SlugField(
         verbose_name="Слаг",
         max_length=200,
         unique=True
-        )
+    )
 
     class Meta:
         ordering = ("id",)
@@ -65,23 +67,25 @@ class Tag(models.Model):
 
 
 class Recipe(models.Model):
-    """Модель рецептов"""
+    """
+    Модель рецептов
+    """
     ingredients = models.ManyToManyField(
         Ingredient,
         through="IngredientCount",
         verbose_name="Игредиент"
-        )
+    )
     author = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
-        related_name='recipes',
+        related_name="recipes",
         verbose_name="Автор"
     )
     tags = models.ManyToManyField(
         Tag,
         related_name="recipes",
         verbose_name="Теги"
-        )
+    )
     image = models.ImageField(
         upload_to="recipes/",
         blank=False,
@@ -90,16 +94,18 @@ class Recipe(models.Model):
         verbose_name="Наименование рецепта",
         max_length=200,
         blank=False
-        )
+    )
     text = models.TextField(
         verbose_name="Описание рецепта",
         blank=False
-        )
+    )
     cooking_time = models.IntegerField(
         verbose_name="Время приготовления",
         validators=[not_null],
         blank=False
-        )
+    )
+    pub_date = models.DateTimeField("Дата публикации",
+                                    auto_now_add=True)
 
     class Meta:
         ordering = ("name",)
@@ -110,18 +116,35 @@ class Recipe(models.Model):
         return self.name[:15]
 
 
+class RecipeTag(models.Model):
+    """
+    RecipeTag - это класс модели, который представляет связь между рецептами и
+    тегами в приложении.Он содержит два ForeignKey, которые связывают его с
+    моделями Recipe и Tag.
+    """
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ("recipe", "tag")
+
+
 class IngredientCount(models.Model):
-    """Модель для связи ингредиентов и рецептов"""
+    """
+    Модель для связи ингредиентов и рецептов
+    """
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        verbose_name="Рецепт"
+        verbose_name="Рецепт",
+        related_name="ingredient_count"
     )
 
     ingredients = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        verbose_name="Ингредиент"
+        verbose_name="Ингредиент",
+        related_name="ingredient_count"
     )
 
     amount = models.PositiveIntegerField(
@@ -140,7 +163,9 @@ class IngredientCount(models.Model):
 
 
 class FavRecipes(models.Model):
-    """Модель для добавления рецептов в избранное"""
+    """
+    Модель для добавления рецептов в избранное
+    """
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
@@ -167,7 +192,9 @@ class FavRecipes(models.Model):
 
 
 class ShoppingList(models.Model):
-    """Модель для списка покупок"""
+    """
+    Модель для списка покупок
+    """
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,

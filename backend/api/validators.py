@@ -4,7 +4,10 @@ from django.core.exceptions import ValidationError
 
 
 def validate_symbols_in_fields(value):
-    regex = re.findall(r'[^\w.@+-]+', value)
+    """
+    Валидатор для проверки наличия недопустимых символов в строке.
+    """
+    regex = re.findall(r"[^\w.@+-]+", value)
     if regex:
         raise ValidationError(
             f"Недопустимый символ в строке: {', '.join(regex)}"
@@ -13,13 +16,18 @@ def validate_symbols_in_fields(value):
 
 
 def validate_me(value):
-    if value == 'me':
-        raise serializers.ValidationError('Использовать имя ME запрещено!')
+    """
+    Валидатор для проверки использования запрещенного значения "me".
+    """
+    if value == "me":
+        raise serializers.ValidationError("Использовать имя ME запрещено!")
     return value
 
+
 def not_null(value):
+    """
+    Валидатор для проверки, что значение не равно нулю.
+    """
     if value < 1:
-        raise ValidationError(
-            f"Значение не может быть меньше 1 грамма"
-        )
+        raise ValidationError("Значение не может быть меньше 1 грамма")
     return value
