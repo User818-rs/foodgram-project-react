@@ -14,7 +14,7 @@ services:
       - ./.env
 
   backend:
-    build: ../backend/
+    image: user818/foodgram_backend:latest
     volumes:
       - static:/app/static/
       - media:/app/media/
@@ -25,9 +25,7 @@ services:
     restart: always
 
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: user818/foodgram_frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
 
