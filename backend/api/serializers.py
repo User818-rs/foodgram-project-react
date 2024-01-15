@@ -1,13 +1,17 @@
 # import pdb
-from django.shortcuts import get_object_or_404
-from rest_framework import serializers
-from recipes.models import (
-    Ingredient, Recipe,
-    ShoppingList, Tag,
-    IngredientCount, FavRecipes)
-from drf_extra_fields.fields import Base64ImageField
-from users.models import CustomUser, Subscription
 from django.core.exceptions import ValidationError
+from django.shortcuts import get_object_or_404
+from drf_extra_fields.fields import Base64ImageField
+from recipes.models import (
+    FavRecipes,
+    Ingredient,
+    IngredientCount,
+    Recipe,
+    ShoppingList,
+    Tag,
+)
+from rest_framework import serializers
+from users.models import CustomUser, Subscription
 
 
 class CustomUserSerializer(serializers.ModelSerializer):

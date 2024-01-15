@@ -1,8 +1,14 @@
 from django.contrib import admin
+
 from .models import (
-    FavRecipes, IngredientCount,
-    Ingredient, Recipe, RecipeTag,
-    ShoppingList, Tag)
+    FavRecipes,
+    Ingredient,
+    IngredientCount,
+    Recipe,
+    RecipeTag,
+    ShoppingList,
+    Tag,
+)
 
 
 class IngredientCountInline(admin.TabularInline):

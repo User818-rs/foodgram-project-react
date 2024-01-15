@@ -1,7 +1,6 @@
+from api.validators import validate_me, validate_symbols_in_fields
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-
-from api.validators import validate_me, validate_symbols_in_fields
 
 
 class CustomUser(AbstractUser):

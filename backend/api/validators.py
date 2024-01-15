@@ -1,6 +1,7 @@
 import re
-from rest_framework import serializers
+
 from django.core.exceptions import ValidationError
+from rest_framework import serializers
 
 
 def validate_symbols_in_fields(value):
