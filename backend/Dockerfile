@@ -5,9 +5,9 @@ WORKDIR /app
 COPY requirements.txt .
 
 RUN pip install -r requirements.txt --no-cache-dir
-# COPY ./docker-entrypoint.sh /app/docker-entrypoint.sh
-# RUN ["chmod", "+x", "/app/docker-entrypoint.sh"]
-# ENTRYPOINT ["sh","/app/docker-entrypoint.sh"]
+COPY ./docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN ["chmod", "+x", "/app/docker-entrypoint.sh"]
+ENTRYPOINT ["sh","/app/docker-entrypoint.sh"]
 
 COPY . .
 
