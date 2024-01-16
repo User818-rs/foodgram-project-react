@@ -17,8 +17,6 @@ jobs:
         python-version: 3.9
     - name: Install dependencies
       run: |
-        env:
-          pip_no_cache_dir: 'true'
         python -m pip install --upgrade pip 
         pip install -r ./backend/requirements/requirements.lint.txt
     - name: Test with flake8 
