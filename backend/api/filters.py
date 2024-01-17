@@ -18,17 +18,6 @@ class IngredientFilter(FilterSet):
         fields = ["name"]
 
 
-class IngredientFilter(FilterSet):
-    """
-    Фильтр для поиска ингредиентов по имени.
-    """
-    name = CharFilter(lookup_expr="istartswith")
-
-    class Meta:
-        model = Ingredient
-        fields = ["name"]
-
-
 class RecipeFilter(FilterSet):
     """
     Фильтр для поиска рецептов с возможностью фильтрации по автору, тегам,
