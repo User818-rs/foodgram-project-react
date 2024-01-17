@@ -11,7 +11,7 @@ class UserAdmin(admin.ModelAdmin):
     """
     list_display = ('id', 'username', 'first_name',
                     'last_name', 'email', 'password',)
-    list_filter = ['email', 'username', ]
+    list_filter = ['email', 'username']
 
 
 @admin.register(Subscription)
@@ -21,4 +21,4 @@ class SubscriptionAdmin(admin.ModelAdmin):
     в панели администратора Django.
     """
     list_display = ('user', 'following')
-    list_filter = ['user', 'following', ]
+    list_filter = ['user', 'following']
