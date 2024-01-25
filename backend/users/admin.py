@@ -9,9 +9,10 @@ class UserAdmin(admin.ModelAdmin):
     Настройка интерфейса администрирования пользователей
     в панели администратора Django.
     """
-    list_display = ('id', 'username', 'first_name',
-                    'last_name', 'email', 'password',)
-    list_filter = ['email', 'username']
+
+    list_display = ("id", "username", "first_name",
+                    "last_name", "email", "password",)
+    list_filter = ["email", "username"]
 
 
 @admin.register(Subscription)
@@ -20,5 +21,10 @@ class SubscriptionAdmin(admin.ModelAdmin):
     Настройка интерфейса администрирования подписок
     в панели администратора Django.
     """
-    list_display = ('user', 'following')
-    list_filter = ['user', 'following']
+
+    list_display = ("user", "following")
+    list_filter = ["user", "following"]
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related("user")

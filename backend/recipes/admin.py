@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import (
-    FavRecipes,
+    FavoriteRecipe,
     Ingredient,
     IngredientCount,
     Recipe,
@@ -46,14 +46,20 @@ class RecipeAdmin(admin.ModelAdmin):
     а также фильтры, поиск и встроенные инлайн-объекты для управления
     ингредиентами и тегами.
     """
-    list_display = ("name", "author", "fav_recipes")
+    list_display = ("name", "author", "favorite_recipe")
     list_filter = ("author", "name", "tags")
     inlines = [IngredientCountInline, RecipeTagInLine]
+    search_fields = ('name',)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related("author").prefetch_related(
+            "ingredients", "tags")
 
     @admin.display(
         description="Общее число добавлений этого рецепта в избранное")
-    def fav_recipes(self, obj: Recipe):
-        return obj.fav_recipes.count()
+    def favorite_recipe(self, obj: Recipe):
+        return obj.favorite_recipe.count()
 
 
 @admin.register(Tag)
@@ -66,10 +72,10 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ("id", "name", "slug")
 
 
-@admin.register(FavRecipes)
+@admin.register(FavoriteRecipe)
 class FavoriteAdmin(admin.ModelAdmin):
     """
-    Административный интерфейс для модели FavRecipes.
+    Административный интерфейс для модели FavoriteRecipe.
     Определяет набор атрибутов, отображаемых в списке админ-панели.
     """
     list_display = ("id", "user", "recipe")

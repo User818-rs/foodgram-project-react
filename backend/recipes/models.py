@@ -1,14 +1,18 @@
-from api.validators import not_null
 from colorfield import fields
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import UniqueConstraint
+from foodgram.constants import (
+    MAX_AMOUNT,
+    MAX_COOKING_TIME,
+    MIN_AMOUNT,
+    MIN_COOKING_TIME,
+)
 from users.models import CustomUser
 
 
 class Ingredient(models.Model):
-    """
-    Модель ингредиентов и их количества
-    """
+    """Модель ингредиентов и их количества"""
 
     name = models.CharField(
         verbose_name="Наименование",
@@ -37,9 +41,7 @@ class Ingredient(models.Model):
 
 
 class Tag(models.Model):
-    """
-    Модель тегов
-    """
+    """Модель тегов"""
 
     name = models.CharField(
         verbose_name="Наименование",
@@ -67,13 +69,13 @@ class Tag(models.Model):
 
 
 class Recipe(models.Model):
-    """
-    Модель рецептов
-    """
+    """Модель рецептов"""
+
     ingredients = models.ManyToManyField(
         Ingredient,
         through="IngredientCount",
-        verbose_name="Игредиент"
+        verbose_name="Игредиент",
+        related_name="recipes_ingredient"
     )
     author = models.ForeignKey(
         CustomUser,
@@ -99,9 +101,12 @@ class Recipe(models.Model):
         verbose_name="Описание рецепта",
         blank=False
     )
-    cooking_time = models.IntegerField(
+    cooking_time = models.PositiveSmallIntegerField(
         verbose_name="Время приготовления",
-        validators=[not_null],
+        validators=[
+            MinValueValidator(limit_value=MIN_COOKING_TIME,),
+            MaxValueValidator(limit_value=MAX_COOKING_TIME,),
+        ],
         blank=False
     )
     pub_date = models.DateTimeField("Дата публикации",
@@ -113,7 +118,7 @@ class Recipe(models.Model):
         verbose_name_plural = "Рецепты"
 
     def __str__(self):
-        return self.name[:15]
+        return self.name
 
 
 class RecipeTag(models.Model):
@@ -122,17 +127,20 @@ class RecipeTag(models.Model):
     тегами в приложении.Он содержит два ForeignKey, которые связывают его с
     моделями Recipe и Tag.
     """
+
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ("recipe", "tag")
 
+    def __str__(self) -> str:
+        return f"{self.recipe} {self.tag}"
+
 
 class IngredientCount(models.Model):
-    """
-    Модель для связи ингредиентов и рецептов
-    """
+    """Модель для связи ингредиентов и рецептов"""
+
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -147,25 +155,27 @@ class IngredientCount(models.Model):
         related_name="ingredient_count"
     )
 
-    amount = models.PositiveIntegerField(
-        validators=[not_null],
+    amount = models.PositiveSmallIntegerField(
+        validators=[
+            MinValueValidator(limit_value=MIN_AMOUNT,),
+            MaxValueValidator(limit_value=MAX_AMOUNT,),
+        ],
         verbose_name="Подсчёт ингредиентов"
     )
 
     class Meta:
-        default_related_name = "Ingredient_Count"
+        default_related_name = "ingredient_count"
         constraints = [
             models.UniqueConstraint(fields=("recipe", "ingredients"),
-                                    name="Ingredient_Count")]
+                                    name="ingredient_count")]
 
     def __str__(self) -> str:
         return f"{self.amount} {self.ingredients}"
 
 
-class FavRecipes(models.Model):
-    """
-    Модель для добавления рецептов в избранное
-    """
+class FavoriteRecipe(models.Model):
+    """Модель для добавления рецептов в избранное"""
+
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
@@ -180,10 +190,10 @@ class FavRecipes(models.Model):
     class Meta:
         verbose_name = "Избранное"
         verbose_name_plural = "Избранное"
-        default_related_name = "fav_recipes"
+        default_related_name = "favorite_recipe"
         constraints = [
             models.UniqueConstraint(fields=("user", "recipe"),
-                                    name="fav_recipes_list")]
+                                    name="favorite_recipe_list")]
 
     def __str__(self):
         return (f"рецепт- {self.recipe.name[:15]}"
@@ -192,19 +202,20 @@ class FavRecipes(models.Model):
 
 
 class ShoppingList(models.Model):
-    """
-    Модель для списка покупок
-    """
+    """Модель для списка покупок"""
+
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
         verbose_name="Пользователь",
+        related_name='shopping_list_user'
     )
 
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        verbose_name="Рецепт",)
+        verbose_name="Рецепт",
+        related_name='shopping_list_recipe')
 
     class Meta:
         verbose_name = "Список покупок"

@@ -4,7 +4,8 @@ from django.db import models
 
 
 class CustomUser(AbstractUser):
-    """Модель пользователя"""
+    """Модель пользователя."""
+
     email = models.EmailField(
         verbose_name="Адрес электронной почты",
         max_length=254,
@@ -39,11 +40,12 @@ class CustomUser(AbstractUser):
         verbose_name_plural = "Пользователи"
 
     def __str__(self):
-        return self.username[:15]
+        return self.username
 
 
 class Subscription(models.Model):
     """Модель для подписки"""
+
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
@@ -65,5 +67,5 @@ class Subscription(models.Model):
                                     name="unique_list")]
 
     def __str__(self):
-        return (f"Подписчик {self.user.username[:15]}"
+        return (f"Подписчик {self.user.username}"
                 f"автора- {self.following.username}")

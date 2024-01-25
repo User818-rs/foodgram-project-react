@@ -8,9 +8,8 @@ from recipes.models import Ingredient, Recipe, Tag
 
 
 class IngredientFilter(FilterSet):
-    """
-    Фильтр для поиска ингредиентов по имени.
-    """
+    """Фильтр для поиска ингредиентов по имени."""
+
     name = CharFilter(lookup_expr="istartswith")
 
     class Meta:
@@ -23,6 +22,7 @@ class RecipeFilter(FilterSet):
     Фильтр для поиска рецептов с возможностью фильтрации по автору, тегам,
     избранным и добавленным в корзину.
     """
+
     author = CharFilter()
     tags = ModelMultipleChoiceFilter(
         field_name="tags__slug",
@@ -39,7 +39,7 @@ class RecipeFilter(FilterSet):
 
     def get_is_favorited(self, queryset, name, value):
         if value:
-            return queryset.filter(fav_recipes__user=self.request.user)
+            return queryset.filter(favorite_recipe__user=self.request.user)
         return queryset
 
     def get_is_in_shopping_cart(self, queryset, name, value):
