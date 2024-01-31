@@ -157,9 +157,7 @@ class SubscribeRecipesSerializer(CustomUserSerializer):
 
 
 class CreateRecipeIngredientSerializer(serializers.ModelSerializer):
-    """
-    Вспомогательный сериализатор для создания рецепта
-    """
+    """Вспомогательный сериализатор для создания рецепта."""
     id = serializers.IntegerField()
     amount = serializers.IntegerField()
 
@@ -169,9 +167,7 @@ class CreateRecipeIngredientSerializer(serializers.ModelSerializer):
 
 
 class CreateRecipeSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор для создания рецепта
-    """
+    """Сериализатор для создания рецепта."""
     author = CustomUserSerializer(read_only=True)
     ingredients = CreateRecipeIngredientSerializer(
         many=True, source="ingredient_count")
@@ -185,29 +181,29 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
             "id", "author", "ingredients", "tags",
             "image", "name", "text", "cooking_time"]
 
-    def ingredient_count(self, ingredients_data, recipe):
+    def ingredient_count(self, tags, ingredients_data, recipe):
+        for tag in tags:
+            recipe.tags.add(tag)
 
         for ingredient in ingredients_data:
             IngredientCount.objects.create(
                 ingredients_id=ingredient.get("id"),
                 amount=ingredient.get("amount"),
-                recipe=recipe
-            )
+                recipe=recipe)
         return recipe
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop("ingredient_count")
         tags = validated_data.pop("tags")
         recipe = Recipe.objects.create(**validated_data)
-        recipe.tags.set(tags)
-        return self.ingredient_count(ingredients_data, recipe)
+        return self.ingredient_count(tags, ingredients_data, recipe)
 
     def update(self, instance, validated_data):
         IngredientCount.objects.filter(recipe=instance).delete()
         ingredients_data = validated_data.pop("ingredient_count")
-        self.ingredient_count(ingredients_data, instance)
         tags = validated_data.pop("tags")
-        instance.tags.set(tags)
+        instance.tags.clear()
+        self.ingredient_count(tags, ingredients_data, instance)
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):

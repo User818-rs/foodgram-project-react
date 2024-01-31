@@ -12,7 +12,7 @@ from users.models import CustomUser
 
 
 class Ingredient(models.Model):
-    """Модель ингредиентов и их количества"""
+    """Модель ингредиентов и их количества."""
 
     name = models.CharField(
         verbose_name="Наименование",
@@ -37,11 +37,11 @@ class Ingredient(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.name[:15]} - {self.measurement_unit}"
+        return f"{self.name} - {self.measurement_unit}"
 
 
 class Tag(models.Model):
-    """Модель тегов"""
+    """Модель тегов."""
 
     name = models.CharField(
         verbose_name="Наименование",
@@ -65,11 +65,11 @@ class Tag(models.Model):
         verbose_name_plural = "Теги"
 
     def __str__(self):
-        return self.name[:15]
+        return self.name
 
 
 class Recipe(models.Model):
-    """Модель рецептов"""
+    """Модель рецептов."""
 
     ingredients = models.ManyToManyField(
         Ingredient,
@@ -128,8 +128,10 @@ class RecipeTag(models.Model):
     моделями Recipe и Tag.
     """
 
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
+                               related_name="recipe_tag_recipe")
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE,
+                            related_name="recipe_tag_tag")
 
     class Meta:
         unique_together = ("recipe", "tag")
@@ -139,7 +141,7 @@ class RecipeTag(models.Model):
 
 
 class IngredientCount(models.Model):
-    """Модель для связи ингредиентов и рецептов"""
+    """Модель для связи ингредиентов и рецептов."""
 
     recipe = models.ForeignKey(
         Recipe,
@@ -174,18 +176,21 @@ class IngredientCount(models.Model):
 
 
 class FavoriteRecipe(models.Model):
-    """Модель для добавления рецептов в избранное"""
+    """Модель для добавления рецептов в избранное."""
 
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
         verbose_name="Пользователь",
+        related_name="favorite_recipe_user"
     )
 
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        verbose_name="Рецепт",)
+        verbose_name="Рецепт",
+        related_name="favorite_recipe_recipe"
+    )
 
     class Meta:
         verbose_name = "Избранное"
@@ -196,13 +201,13 @@ class FavoriteRecipe(models.Model):
                                     name="favorite_recipe_list")]
 
     def __str__(self):
-        return (f"рецепт- {self.recipe.name[:15]}"
-                f"добавлен в избранное к  {self.user.username[:15]}"
+        return (f"рецепт- {self.recipe.name}"
+                f"добавлен в избранное к  {self.user.username}"
                 )
 
 
 class ShoppingList(models.Model):
-    """Модель для списка покупок"""
+    """Модель для списка покупок."""
 
     user = models.ForeignKey(
         CustomUser,
@@ -226,5 +231,5 @@ class ShoppingList(models.Model):
                                     name="user_shopping_list")]
 
     def __str__(self):
-        return (f"рецепт- {self.recipe.name[:15]}"
-                f"добавлен в список покупок к   {self.user.username[:15]}")
+        return (f"рецепт- {self.recipe.name}"
+                f"добавлен в список покупок к   {self.user.username}")

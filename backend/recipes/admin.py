@@ -16,6 +16,7 @@ class IngredientCountInline(admin.TabularInline):
     Встроенный инлайн-объект администрирования ингредиентов в рецепте.
     Позволяет управлять связями между ингредиентами и рецептами в админ-панели.
     """
+
     model = IngredientCount
 
 
@@ -24,6 +25,7 @@ class RecipeTagInLine(admin.TabularInline):
     Встроенный инлайн-объект администрирования тегов для рецепта.
     Позволяет управлять связями между тегами и рецептами в админ-панели.
     """
+
     model = RecipeTag
 
 
@@ -34,6 +36,7 @@ class IngredientAdmin(admin.ModelAdmin):
     Определяет набор атрибутов, отображаемых в списке админ-панели,
     а также фильтр и поиск.
     """
+
     list_display = ("id", "name", "measurement_unit")
     list_filter = ["name"]
 
@@ -46,6 +49,7 @@ class RecipeAdmin(admin.ModelAdmin):
     а также фильтры, поиск и встроенные инлайн-объекты для управления
     ингредиентами и тегами.
     """
+
     list_display = ("name", "author", "favorite_recipe")
     list_filter = ("author", "name", "tags")
     inlines = [IngredientCountInline, RecipeTagInLine]
@@ -59,7 +63,7 @@ class RecipeAdmin(admin.ModelAdmin):
     @admin.display(
         description="Общее число добавлений этого рецепта в избранное")
     def favorite_recipe(self, obj: Recipe):
-        return obj.favorite_recipe.count()
+        return obj.favorite_recipe_recipe.count()
 
 
 @admin.register(Tag)
@@ -69,6 +73,7 @@ class TagAdmin(admin.ModelAdmin):
     Определяет набор атрибутов, отображаемых в списке админ-панели,
     а также фильтры и поиск.
     """
+
     list_display = ("id", "name", "slug")
 
 
@@ -78,7 +83,12 @@ class FavoriteAdmin(admin.ModelAdmin):
     Административный интерфейс для модели FavoriteRecipe.
     Определяет набор атрибутов, отображаемых в списке админ-панели.
     """
+
     list_display = ("id", "user", "recipe")
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related("user").prefetch_related("recipe")
 
 
 @admin.register(ShoppingList)
@@ -87,4 +97,9 @@ class ShoppingListAdmin(admin.ModelAdmin):
     Административный интерфейс для модели ShoppingList.
     Определяет набор атрибутов, отображаемых в списке админ-панели.
     """
+
     list_display = ("id", "user", "recipe")
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related("user").prefetch_related("recipe")

@@ -1,5 +1,4 @@
-CSV_PATH = 'data/ingredients.csv'
-# CSV_PATH = "C:/Dev/foodgram-project-react/backend/data"backend\data
+CSV_PATH = "data/ingredients.csv"
 PAGE_SIZE = 6
 MIN_COOKING_TIME = 1
 MAX_COOKING_TIME = 200

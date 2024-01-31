@@ -1,4 +1,3 @@
-from api.create_shopping_cart import create_shopping_list_file
 from api.filters import IngredientFilter, RecipeFilter
 from api.pagination import PageSizePagination
 from api.serializers import (
@@ -12,7 +11,8 @@ from api.serializers import (
     SubscribeRecipesSerializer,
     TagSerializer,
 )
-from django.db.models import Count, Prefetch
+from api.utils import create_shopping_list_file
+from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -126,8 +126,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """
 
     queryset = Recipe.objects.select_related('author').prefetch_related(
-        Prefetch('tags', queryset=Tag.objects.all()),
-        Prefetch('ingredients', queryset=Ingredient.objects.all()))
+        'tags', 'ingredients')
 
     serializer_class = RecipeViewingSerializer
     pagination_class = PageSizePagination
@@ -161,12 +160,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
             serializer = ShoppingCartSerializer(new_cart_item,
                                                 context={"request": request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        if request.method == "DELETE":
-            get_object_or_404(ShoppingList, user=request.user,
-                              recipe=recipe).delete()
-            return Response(
-                {'message': "Рецепт успешно удален из списка покупок."},
-                status=status.HTTP_204_NO_CONTENT)
+        ShoppingList.objects.filter(user=request.user, recipe=recipe).delete()
+        return Response(
+            {'message': "Рецепт успешно удален из списка покупок."},
+            status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=["POST", "DELETE"], detail=True,
             permission_classes=[IsAuthenticated])
@@ -185,11 +182,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 favorite,
                 context={"request": request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        if request.method == "DELETE":
-            get_object_or_404(
-                FavoriteRecipe, user=request.user, recipe=recipe).delete()
-            return Response({'message': "Рецепт успешно удален из избранного"},
-                            status=status.HTTP_204_NO_CONTENT)
+        FavoriteRecipe.objects.filter(
+            user=request.user, recipe=recipe).delete()
+        return Response({'message': "Рецепт успешно удален из избранного"},
+                        status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=False, methods=["GET"],
             permission_classes=[IsAuthenticated])
