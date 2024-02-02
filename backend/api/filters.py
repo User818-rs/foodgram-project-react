@@ -28,7 +28,7 @@ class RecipeFilter(FilterSet):
         field_name="tags__slug",
         queryset=Tag.objects.all(),
         label="Tags",
-        to_field_name="slug"
+        to_field_name="slug",
     )
     is_favorited = BooleanFilter(method="get_is_favorited")
     is_in_shopping_cart = BooleanFilter(method="get_is_in_shopping_cart")

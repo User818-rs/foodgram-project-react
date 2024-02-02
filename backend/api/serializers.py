@@ -182,10 +182,8 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
             "id", "author", "ingredients", "tags",
             "image", "name", "text", "cooking_time"]
 
-    def ingredient_count(self, tags, ingredients_data, recipe):
-        for tag in tags:
-            recipe.tags.add(tag)
-
+    def add_tags_and_ingredients(self, tags, ingredients_data, recipe):
+        recipe.tags.set(tags)
         for ingredient in ingredients_data:
             IngredientCount.objects.create(
                 ingredients_id=ingredient.get("id"),
@@ -197,14 +195,14 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         ingredients_data = validated_data.pop("ingredient_count")
         tags = validated_data.pop("tags")
         recipe = Recipe.objects.create(**validated_data)
-        return self.ingredient_count(tags, ingredients_data, recipe)
+        return self.add_tags_and_ingredients(tags, ingredients_data, recipe)
 
     def update(self, instance, validated_data):
         IngredientCount.objects.filter(recipe=instance).delete()
         ingredients_data = validated_data.pop("ingredient_count")
         tags = validated_data.pop("tags")
         instance.tags.clear()
-        self.ingredient_count(tags, ingredients_data, instance)
+        self.add_tags_and_ingredients(tags, ingredients_data, instance)
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):
@@ -219,6 +217,7 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
     Сериализатор для модели ShoppingList,
     представляющей список рецептов в корзине.
     """
+
     class Meta:
         model = ShoppingList
         fields = ["user", "recipe"]

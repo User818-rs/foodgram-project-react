@@ -50,7 +50,7 @@ class CustomUserViewSet(UserViewSet):
     def get_queryset(self):
         queryset = CustomUser.objects.filter(
             following__user=self.request.user).annotate(
-                recipes_count=Count('recipes')).order_by('-recipes_count')
+                recipes_count=Count("recipes")).order_by("-recipes_count")
         return queryset
 
     @action(
@@ -64,13 +64,13 @@ class CustomUserViewSet(UserViewSet):
         if request.method == "POST":
             if user == author:
                 return Response({
-                    'message':
+                    "message":
                     "Нельзя подписываться два раза на одного автора"},
                     status=status.HTTP_400_BAD_REQUEST)
             if Subscription.objects.filter(
                     user=user, following=author).exists():
                 return Response({
-                    'message': "Нельзя подписываться на самого себя"},
+                    "message": "Нельзя подписываться на самого себя"},
                     status=status.HTTP_400_BAD_REQUEST)
             serializer = AuthorSubscriptionSerializer(
                 data={"user": user.id, "following": author.id})
@@ -126,8 +126,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     полный набор функций для работы с рецептами.
     """
 
-    queryset = Recipe.objects.select_related('author').prefetch_related(
-        'tags', 'ingredients')
+    queryset = Recipe.objects.select_related("author").prefetch_related(
+        "tags", "ingredients")
 
     serializer_class = RecipeViewingSerializer
     pagination_class = PageSizePagination
@@ -155,7 +155,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 user=request.user, recipe=recipe)
             if not created:
                 return Response({
-                    'message':
+                    "message":
                     "Ошибка добавления рецепт уже в списке покупок"},
                     status=status.HTTP_400_BAD_REQUEST)
             serializer = ShoppingCartSerializer(new_cart_item,
@@ -163,7 +163,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         ShoppingList.objects.filter(user=request.user, recipe=recipe).delete()
         return Response(
-            {'message': "Рецепт успешно удален из списка покупок."},
+            {"message": "Рецепт успешно удален из списка покупок."},
             status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=["POST", "DELETE"], detail=True,
@@ -174,7 +174,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             if FavoriteRecipe.objects.filter(user=request.user,
                                              recipe=recipe).exists():
                 return Response({
-                    'message':
+                    "message":
                     "Нельзя добавить один и тот же рецепт два раза"},
                     status=status.HTTP_400_BAD_REQUEST)
             favorite = FavoriteRecipe.objects.create(
@@ -185,7 +185,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         FavoriteRecipe.objects.filter(
             user=request.user, recipe=recipe).delete()
-        return Response({'message': "Рецепт успешно удален из избранного"},
+        return Response({"message": "Рецепт успешно удален из избранного"},
                         status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=False, methods=["GET"],
