@@ -48,11 +48,11 @@ class CustomUserViewSet(UserViewSet):
     pagination_class = PageSizePagination
     filterset_class = RecipeFilter
 
-    def get_queryset(self):
-        queryset = CustomUser.objects.filter(
-            id=self.request.user.id).annotate(
-                recipes_count=Count("recipes")).order_by("-recipes_count")
-        return queryset
+    # def get_queryset(self):
+    #     queryset = CustomUser.objects.filter(
+    #         id=self.request.user.id).annotate(
+    #             recipes_count=Count("recipes")).order_by("-recipes_count")
+    #     return queryset
 
     @action(
         detail=True,
