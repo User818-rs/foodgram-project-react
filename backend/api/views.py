@@ -32,6 +32,7 @@ from recipes.models import (
     Tag,
 )
 
+
 from .permissions import IsOwnerOrAdminOrReadOnly
 
 
@@ -50,7 +51,7 @@ class CustomUserViewSet(UserViewSet):
 
     def get_queryset(self):
         queryset = CustomUser.objects.filter(
-            following__user=self.request.user).annotate(
+            id=self.request.user.id).annotate(
                 recipes_count=Count("recipes")).order_by("-recipes_count")
         return queryset
 
