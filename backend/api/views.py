@@ -2,6 +2,14 @@ from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
+from django_filters.rest_framework import DjangoFilterBackend
+from djoser.views import UserViewSet
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from users.models import CustomUser, Subscription
+
 from api.filters import IngredientFilter, RecipeFilter
 from api.pagination import PageSizePagination
 from api.serializers import (
@@ -16,8 +24,6 @@ from api.serializers import (
     TagSerializer,
 )
 from api.utils import create_shopping_list_file
-from django_filters.rest_framework import DjangoFilterBackend
-from djoser.views import UserViewSet
 from recipes.models import (
     FavoriteRecipe,
     Ingredient,
@@ -25,11 +31,6 @@ from recipes.models import (
     ShoppingList,
     Tag,
 )
-from rest_framework import status, viewsets
-from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
-from users.models import CustomUser, Subscription
 
 from .permissions import IsOwnerOrAdminOrReadOnly
 

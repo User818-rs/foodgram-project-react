@@ -1,6 +1,9 @@
 from django.core.exceptions import ValidationError
 
 from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers
+from users.models import CustomUser, Subscription
+
 from recipes.models import (
     FavoriteRecipe,
     Ingredient,
@@ -9,14 +12,11 @@ from recipes.models import (
     ShoppingList,
     Tag,
 )
-from rest_framework import serializers
-from users.models import CustomUser, Subscription
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор для модели CustomUser с дополнительными полями и методом.
-    """
+    """Сериализатор для модели CustomUser дополнительными полями и методом."""
+
     password = serializers.CharField(write_only=True)
     is_subscribed = serializers.SerializerMethodField()
 
@@ -38,6 +38,7 @@ class AuthorSubscriptionSerializer(serializers.ModelSerializer):
     Сериализатор для модели Subscription, отображающей подписку
     автора и следующих за ним пользователей.
     """
+
     class Meta:
         model = Subscription
         fields = ("user", "following")
@@ -48,6 +49,7 @@ class IngredientCountSerializer(serializers.ModelSerializer):
     Сериализатор для модели IngredientCount, представляющей количество
     ингредиентов в рецепте.
     """
+
     id = serializers.ReadOnlyField(source="ingredients.id")
     name = serializers.ReadOnlyField(source="ingredients.name")
     measurement_unit = serializers.ReadOnlyField(
@@ -60,18 +62,16 @@ class IngredientCountSerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор для модели Ingredient, представляющей ингредиент.
-    """
+    """Сериализатор для модели Ingredient, представляющей ингредиент."""
+
     class Meta:
         model = Ingredient
         fields = ["id", "name", "measurement_unit"]
 
 
 class TagSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор для модели Tag, представляющей тег.
-    """
+    """Сериализатор для модели Tag, представляющей тег."""
+
     class Meta:
         model = Tag
         fields = ("id", "name", "color", "slug")
@@ -82,6 +82,7 @@ class RecipeViewingSerializer(serializers.ModelSerializer):
     Сериализатор для модели Recipe, представляющей рецепт
     с дополнительными полями.
     """
+
     ingredients = serializers.SerializerMethodField()
     tags = TagSerializer(many=True, read_only=True)
     author = CustomUserSerializer(read_only=True)
@@ -117,6 +118,7 @@ class ReducedRecipeSerializer(serializers.ModelSerializer):
     Сериализатор для модели Recipe, представляющей рецепт
     с сокращенными полями.
     """
+
     class Meta:
         model = Recipe
         fields = "id", "name", "image", "cooking_time"
@@ -128,6 +130,7 @@ class SubscribeRecipesSerializer(CustomUserSerializer):
     Сериализатор для модели CustomUser с дополнительными
     полями о подписках на рецепты.
     """
+
     recipes = serializers.SerializerMethodField(read_only=True)
     recipes_count = serializers.IntegerField(read_only=True)
 
@@ -159,19 +162,21 @@ class SubscribeRecipesSerializer(CustomUserSerializer):
 
 class CreateRecipeIngredientSerializer(serializers.ModelSerializer):
     """Вспомогательный сериализатор для создания рецепта."""
+
     id = serializers.IntegerField()
     amount = serializers.IntegerField()
 
     class Meta:
         model = Ingredient
-        fields = ("id", "amount")
+        fields = ["id", "amount"]
 
 
 class CreateRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для создания рецепта."""
+
     author = CustomUserSerializer(read_only=True)
     ingredients = CreateRecipeIngredientSerializer(
-        many=True, source="ingredient_count")
+        many=True, source="ingredient_count_ingredients")
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True)
     image = Base64ImageField()
@@ -192,14 +197,14 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def create(self, validated_data):
-        ingredients_data = validated_data.pop("ingredient_count")
+        ingredients_data = validated_data.pop("ingredient_count_ingredients")
         tags = validated_data.pop("tags")
         recipe = Recipe.objects.create(**validated_data)
         return self.add_tags_and_ingredients(tags, ingredients_data, recipe)
 
     def update(self, instance, validated_data):
         IngredientCount.objects.filter(recipe=instance).delete()
-        ingredients_data = validated_data.pop("ingredient_count")
+        ingredients_data = validated_data.pop("ingredient_count_ingredients")
         tags = validated_data.pop("tags")
         instance.tags.clear()
         self.add_tags_and_ingredients(tags, ingredients_data, instance)
