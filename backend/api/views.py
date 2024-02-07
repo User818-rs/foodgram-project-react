@@ -32,7 +32,6 @@ from recipes.models import (
     Tag,
 )
 
-
 from .permissions import IsOwnerOrAdminOrReadOnly
 
 
