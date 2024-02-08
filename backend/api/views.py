@@ -48,18 +48,15 @@ class CustomUserViewSet(UserViewSet):
     pagination_class = PageSizePagination
     filterset_class = RecipeFilter
 
-    def get_queryset(self):
-        queryset = CustomUser.objects.filter(
-            id=self.request.user.id).annotate(
-                recipes_count=Count("recipes")).order_by("-recipes_count")
-        return queryset
-
     @action(
         detail=True,
         methods=["POST", "DELETE"],
         permission_classes=[IsAuthenticated],
         pagination_class=PageSizePagination)
     def subscribe(self, request, id):
+        queryset = CustomUser.objects.filter(
+            id=self.request.user.id).annotate(
+                recipes_count=Count("recipes")).order_by("-recipes_count")
         user = request.user
         author = get_object_or_404(CustomUser, id=id)
         if request.method == "POST":
@@ -77,7 +74,6 @@ class CustomUserViewSet(UserViewSet):
                 data={"user": user.id, "following": author.id})
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            queryset = self.get_queryset()
             serializer = SubscribeRecipesSerializer(
                 queryset, many=True, context={"request": request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -90,7 +86,7 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def subscriptions(self, request):
-        queryset = self.get_queryset()
+        queryset = CustomUser.objects.filter(following__user=request.user)
         page = self.paginate_queryset(queryset)
         serializer = SubscribeRecipesSerializer(
             page, many=True, context={"request": request})
