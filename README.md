@@ -1,5 +1,8 @@
 # Readme.md
-
+Проект : http://158.160.29.228:8000/
+Админ 
+- лог : admin@mail.ru
+- пас : 12345
 **Foodgram Project (React)**
 
 [GitHub Repository](https://github.com/User818-rs/foodgram-project-react)
