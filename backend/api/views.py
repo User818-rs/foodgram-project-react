@@ -8,7 +8,6 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from users.models import CustomUser, Subscription
 
 from api.filters import IngredientFilter, RecipeFilter
 from api.pagination import PageSizePagination
@@ -31,6 +30,7 @@ from recipes.models import (
     ShoppingList,
     Tag,
 )
+from users.models import CustomUser, Subscription
 
 from .permissions import IsOwnerOrAdminOrReadOnly
 
@@ -86,7 +86,9 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def subscriptions(self, request):
-        queryset = CustomUser.objects.filter(following__user=request.user)
+        queryset = CustomUser.objects.filter(
+            following__user=request.user).annotate(
+                recipes_count=Count("recipes")).order_by("-recipes_count")
         page = self.paginate_queryset(queryset)
         serializer = SubscribeRecipesSerializer(
             page, many=True, context={"request": request})

@@ -3,7 +3,6 @@ import csv
 from django.core.management.base import BaseCommand
 
 from foodgram.constants import CSV_PATH
-
 from recipes.models import Ingredient
 
 

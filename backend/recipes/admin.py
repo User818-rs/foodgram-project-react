@@ -38,7 +38,8 @@ class IngredientAdmin(admin.ModelAdmin):
     """
 
     list_display = ("id", "name", "measurement_unit")
-    list_filter = ["name"]
+    list_display_links = ("name",)
+    search_fields = ("name",)
 
 
 @admin.register(Recipe)
@@ -51,6 +52,7 @@ class RecipeAdmin(admin.ModelAdmin):
     """
 
     list_display = ("name", "author", "favorite_recipe")
+    list_display_links = ("name", "author")
     list_filter = ("author", "name", "tags")
     inlines = [IngredientCountInline, RecipeTagInLine]
     search_fields = ("name",)
@@ -75,6 +77,8 @@ class TagAdmin(admin.ModelAdmin):
     """
 
     list_display = ("id", "name", "slug")
+    list_display_links = ("name",)
+    search_fields = ("name", "slug",)
 
 
 @admin.register(FavoriteRecipe)
@@ -85,6 +89,7 @@ class FavoriteAdmin(admin.ModelAdmin):
     """
 
     list_display = ("id", "user", "recipe")
+    list_display_links = ("user",)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -99,6 +104,7 @@ class ShoppingListAdmin(admin.ModelAdmin):
     """
 
     list_display = ("id", "user", "recipe")
+    list_display_links = ("user",)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

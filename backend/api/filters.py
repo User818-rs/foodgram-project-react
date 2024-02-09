@@ -1,38 +1,34 @@
-from django_filters import (
-    BooleanFilter,
-    CharFilter,
-    FilterSet,
-    ModelMultipleChoiceFilter,
-)
+from django_filters import rest_framework
 
 from recipes.models import Ingredient, Recipe, Tag
 
 
-class IngredientFilter(FilterSet):
+class IngredientFilter(rest_framework.FilterSet):
     """Фильтр для поиска ингредиентов по имени."""
 
-    name = CharFilter(lookup_expr="istartswith")
+    name = rest_framework.CharFilter(lookup_expr="istartswith")
 
     class Meta:
         model = Ingredient
         fields = ["name"]
 
 
-class RecipeFilter(FilterSet):
+class RecipeFilter(rest_framework.FilterSet):
     """
     Фильтр для поиска рецептов с возможностью фильтрации по автору, тегам,
     избранным и добавленным в корзину.
     """
 
-    author = CharFilter()
-    tags = ModelMultipleChoiceFilter(
+    author = rest_framework.CharFilter()
+    tags = rest_framework.ModelMultipleChoiceFilter(
         field_name="tags__slug",
         queryset=Tag.objects.all(),
         label="Tags",
         to_field_name="slug",
     )
-    is_favorited = BooleanFilter(method="get_is_favorited")
-    is_in_shopping_cart = BooleanFilter(method="get_is_in_shopping_cart")
+    is_favorited = rest_framework.BooleanFilter(method="get_is_favorited")
+    is_in_shopping_cart = rest_framework.BooleanFilter(
+        method="get_is_in_shopping_cart")
 
     class Meta:
         model = Recipe

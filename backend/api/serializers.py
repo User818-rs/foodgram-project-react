@@ -2,7 +2,6 @@ from django.core.exceptions import ValidationError
 
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
-from users.models import CustomUser, Subscription
 
 from recipes.models import (
     FavoriteRecipe,
@@ -12,6 +11,7 @@ from recipes.models import (
     ShoppingList,
     Tag,
 )
+from users.models import CustomUser, Subscription
 
 
 class CustomUserSerializer(serializers.ModelSerializer):

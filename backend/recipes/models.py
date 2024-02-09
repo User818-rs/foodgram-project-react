@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models import UniqueConstraint
 
 from colorfield import fields
+
 from foodgram.constants import (
     MAX_AMOUNT,
     MAX_COOKING_TIME,
@@ -24,7 +25,7 @@ class Ingredient(models.Model):
 
     class Meta:
         verbose_name = "ингредиент"
-        verbose_name_plural = "ингредиентов"
+        verbose_name_plural = "ингредиенты"
         ordering = ["id"]
         constraints = [
             UniqueConstraint(
@@ -118,10 +119,16 @@ class RecipeTag(models.Model):
     """
 
     recipe = models.ForeignKey(
-        Recipe, on_delete=models.CASCADE, related_name="recipe_tag_recipe"
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name="recipe_tag_recipe",
+        verbose_name="Рецепт"
     )
     tag = models.ForeignKey(
-        Tag, on_delete=models.CASCADE, related_name="recipe_tag_tag"
+        Tag,
+        on_delete=models.CASCADE,
+        related_name="recipe_tag_tag",
+        verbose_name="Тэг"
     )
 
     class Meta:
