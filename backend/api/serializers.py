@@ -12,7 +12,7 @@ from recipes.models import (
     Tag,
 )
 from users.models import CustomUser, Subscription
-import pdb
+
 
 class CustomUserSerializer(serializers.ModelSerializer):
     """Сериализатор для модели CustomUser дополнительными полями и методом."""
@@ -192,7 +192,6 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
     def add_tags_and_ingredients(self, tags, ingredients_data, recipe):
         recipe.tags.set(tags)
         for ingredient in ingredients_data:
-            pdb.set_trace()
             IngredientCount.objects.create(
                 ingredients_id=ingredient.get("id").id,
                 amount=ingredient.get("amount"),
