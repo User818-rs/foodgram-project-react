@@ -162,16 +162,6 @@ class SubscribeRecipesSerializer(CustomUserSerializer):
         return serializer.data
 
 
-# class CreateRecipeIngredientSerializer(serializers.ModelSerializer):
-#     """Вспомогательный сериализатор для создания рецепта."""
-
-#     amount = serializers.IntegerField()
-
-#     class Meta:
-#         model = Ingredient
-#         fields = ["id", "amount"]
-
-
 class CreateRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для создания рецепта."""
 
