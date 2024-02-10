@@ -1,5 +1,5 @@
 CSV_PATH = "data/ingredients.csv"
-PAGE_SIZE = 6
+PAGE_SIZE = 3
 MIN_COOKING_TIME = 1
 MAX_COOKING_TIME = 200
 MIN_AMOUNT = 1
