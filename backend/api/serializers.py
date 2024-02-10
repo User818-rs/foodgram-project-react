@@ -12,7 +12,7 @@ from recipes.models import (
     Tag,
 )
 from users.models import CustomUser, Subscription
-
+import pdb
 
 class CustomUserSerializer(serializers.ModelSerializer):
     """Сериализатор для модели CustomUser дополнительными полями и методом."""
@@ -50,7 +50,9 @@ class IngredientCountSerializer(serializers.ModelSerializer):
     ингредиентов в рецепте.
     """
 
-    id = serializers.ReadOnlyField(source="ingredients.id")
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Ingredient.objects.all()
+    )
     name = serializers.ReadOnlyField(source="ingredients.name")
     measurement_unit = serializers.ReadOnlyField(
         source="ingredients.measurement_unit"
@@ -163,7 +165,6 @@ class SubscribeRecipesSerializer(CustomUserSerializer):
 class CreateRecipeIngredientSerializer(serializers.ModelSerializer):
     """Вспомогательный сериализатор для создания рецепта."""
 
-    id = serializers.IntegerField()
     amount = serializers.IntegerField()
 
     class Meta:
@@ -175,8 +176,9 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для создания рецепта."""
 
     author = CustomUserSerializer(read_only=True)
-    ingredients = CreateRecipeIngredientSerializer(
+    ingredients = IngredientCountSerializer(
         many=True, source="ingredient_count_ingredients")
+    IngredientCountSerializer
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True)
     image = Base64ImageField()
@@ -190,8 +192,9 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
     def add_tags_and_ingredients(self, tags, ingredients_data, recipe):
         recipe.tags.set(tags)
         for ingredient in ingredients_data:
+            pdb.set_trace()
             IngredientCount.objects.create(
-                ingredients_id=ingredient.get("id"),
+                ingredients_id=ingredient.get("id").id,
                 amount=ingredient.get("amount"),
                 recipe=recipe)
         return recipe
