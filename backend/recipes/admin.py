@@ -53,7 +53,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
     list_display = ("name", "author", "favorite_recipe")
     list_display_links = ("name", "author")
-    list_filter = ("tags",)
+    list_filter = ("tags", "author")
     inlines = [IngredientCountInline, RecipeTagInLine]
     search_fields = ("name",)
 
